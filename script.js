@@ -1,6 +1,6 @@
 const WIDTH = window.innerWidth - window.innerWidth / 5;
 const HEIGHT = window.innerHeight;
-const gridSize = 10;
+const gridSize = 50;
 let tabColor = [];
 let silentNoisyValue = 0;
 let harshHarmoniousValue = 50;
@@ -63,7 +63,7 @@ async function setup() {
     console.log(WIDTH, HEIGHT);
     createCanvas(WIDTH, HEIGHT, WEBGL);
     colorMode(RGB);
-    background(255);
+    background(0);
     noStroke();
 
     // Call fetch_colors to initiate the color fetching process
@@ -147,7 +147,7 @@ async function drawMosaic() {
 }
 
 function draw() {
-    background(255);
+    background(0);
     drawMosaic();
 }
 
