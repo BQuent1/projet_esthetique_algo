@@ -1,10 +1,9 @@
 const WIDTH = window.innerWidth - window.innerWidth / 4;
 const HEIGHT = window.innerHeight;
-const gridSize = 50;
-let calque;
+const gridSize = 20;
 let tabColor = [];
 let silentNoisyValue = 0;
-let harshHarmoniousValue = 50;
+let harshHarmoniousValue = 0;
 let passiveActiveValue = 0;
 let dullBrightValue = 50;
 let sugaryBitterValue = 50;
@@ -79,7 +78,6 @@ const db = firebase.firestore();
 async function setup() {
     console.log(WIDTH, HEIGHT);
     createCanvas(WIDTH, HEIGHT, WEBGL);
-    calque = createGraphics(WIDTH, HEIGHT);
     colorMode(RGB);
     background(0);
     noStroke();
@@ -167,7 +165,6 @@ async function drawMosaic() {
             let height = HEIGHT / gridSize;
             push();
 
-
             if (randomColor.index == 0) {
                 posX += vibration();
                 posY += vibration();
@@ -179,20 +176,18 @@ async function drawMosaic() {
                 posY = 0;
             }
 
+
             fill(randomColor.r, randomColor.g, randomColor.b);
             rect(posX, posY, width, height);
             pop();
 
         }
     }
-
 }
 
 function draw() {
     background(0);
     drawMosaic();
-    //image(calque, -WIDTH / 2, -HEIGHT / 2);
-    //rect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT);
 }
 
 
@@ -209,3 +204,4 @@ function danse(xPos, yPos, cellWidth, cellHeight) {
     rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
     rectMode(CENTER);
 }
+
