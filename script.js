@@ -1,6 +1,7 @@
 const WIDTH = window.innerWidth - window.innerWidth / 5;
 const HEIGHT = window.innerHeight;
 const gridSize = 50;
+let calque;
 let tabColor = [];
 let silentNoisyValue = 0;
 let harshHarmoniousValue = 50;
@@ -62,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 async function setup() {
     console.log(WIDTH, HEIGHT);
     createCanvas(WIDTH, HEIGHT, WEBGL);
+    calque = createGraphics(WIDTH, HEIGHT);
     colorMode(RGB);
     background(0);
     noStroke();
@@ -107,6 +109,7 @@ async function fetch_colors() {
 }
 
 async function drawMosaic() {
+    
 
     // Only run this code once colors are available
     for (let j = 0; j < gridSize; j++) {
@@ -149,9 +152,9 @@ async function drawMosaic() {
 function draw() {
     background(0);
     drawMosaic();
+    //image(calque, -WIDTH / 2, -HEIGHT / 2);
+    //rect(-WIDTH / 2, -HEIGHT / 2, WIDTH, HEIGHT);
 }
-
-
 
 
 // effets couleurs
