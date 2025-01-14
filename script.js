@@ -2,9 +2,9 @@ const WIDTH = window.innerWidth - window.innerWidth / 5;
 const HEIGHT = window.innerHeight;
 const gridSize = 10;
 let tabColor = [];
-let silentNoisyValue = 50;
+let silentNoisyValue = 0;
 let harshHarmoniousValue = 50;
-let passiveActiveValue = 50;
+let passiveActiveValue = 0;
 let dullBrightValue = 50;
 let sugaryBitterValue = 50;
 let mildAcidValue = 50;
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function setup() {
     console.log(WIDTH, HEIGHT);
-    createCanvas(WIDTH, HEIGHT);
+    createCanvas(WIDTH, HEIGHT, WEBGL);
     colorMode(RGB);
     background(255);
     noStroke();
@@ -119,18 +119,28 @@ async function drawMosaic() {
                 return;
             }
 
-            let xOffset = 0;
-            let yOffset = 0;
+            let posX = i * (WIDTH / gridSize) - WIDTH / 2;
+            let posY = j * (HEIGHT / gridSize) - HEIGHT / 2;
+            let width = WIDTH / gridSize;
+            let height = HEIGHT / gridSize;
+            push();
 
-            const vibrationStrength = silentNoisyValue;
 
             if (randomColor.index == 0) {
-                xOffset = random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
-                yOffset = random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
+                posX += vibration();
+                posY += vibration();
+            }
+
+            if(randomColor.index == 1) {
+                danse(posX, posY, width, height);
+                posX = 0;
+                posY = 0;
             }
 
             fill(randomColor.r, randomColor.g, randomColor.b);
-            rect(i * (WIDTH / gridSize) + xOffset, j * (HEIGHT / gridSize) + yOffset, WIDTH / gridSize, HEIGHT / gridSize);
+            rect(posX, posY, width, height);
+            pop();
+
         }
     }
 
@@ -139,4 +149,21 @@ async function drawMosaic() {
 function draw() {
     background(255);
     drawMosaic();
+}
+
+
+
+
+// effets couleurs
+
+function vibration() {
+    const vibrationStrength = silentNoisyValue/98;
+    return random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
+}
+
+function danse(xPos, yPos, cellWidth, cellHeight) {
+    translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
+    rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
+    rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    rectMode(CENTER);
 }
