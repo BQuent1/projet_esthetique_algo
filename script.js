@@ -1,4 +1,4 @@
-const WIDTH = window.innerWidth - window.innerWidth / 5;
+const WIDTH = window.innerWidth - window.innerWidth / 4;
 const HEIGHT = window.innerHeight;
 const gridSize = 50;
 let calque;
@@ -60,6 +60,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+const firebaseConfig = {
+    apiKey: "AIzaSyAZHLuqxB9hJEkvtIt4j0iDruEt6aBleK8",
+    authDomain: "palette-ba1cc.firebaseapp.com",
+    projectId: "palette-ba1cc",
+    storageBucket: "palette-ba1cc.firebasestorage.app",
+    messagingSenderId: "313774795669",
+    appId: "1:313774795669:web:fbae4c1d4c82c4a21de49c",
+    measurementId: "G-5LPD228XNQ"
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+
+// Get a reference to the Firestore database
+const db = firebase.firestore();
+
 async function setup() {
     console.log(WIDTH, HEIGHT);
     createCanvas(WIDTH, HEIGHT, WEBGL);
@@ -75,6 +91,31 @@ async function setup() {
 async function changeColor() {
     console.log('changeColor');
     tabColor = await fetch_colors();
+    await saveData();
+}
+
+async function saveData() {
+    // Créer un objet avec des données
+    const doc = {
+        silentNoisyValue,
+        harshHarmoniousValue,
+        passiveActiveValue,
+        dullBrightValue,
+        sugaryBitterValue,
+        mildAcidValue,
+        coldWarmValue,
+        wetDryValue
+    };
+    
+    // Créer un document dans Firestore
+    try {
+        await db.collection('palette-reviews').add(doc);
+        // await setDoc(docRef, user);
+        console.log("Document écrit avec succès !");
+    }
+    catch (e) {
+        console.error("Erreur lors de l'écriture du document :", e);
+    }
 }
 
 //choisir 4 couleurs
@@ -109,8 +150,6 @@ async function fetch_colors() {
 }
 
 async function drawMosaic() {
-    
-
     // Only run this code once colors are available
     for (let j = 0; j < gridSize; j++) {
         for (let i = 0; i < gridSize; i++) {
