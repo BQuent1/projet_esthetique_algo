@@ -1,7 +1,8 @@
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 let waterLayer;
-const gridSize = 20;
+let gridSize = 20;
+let colorPalette = [];
 let tabColor = [];
 let silentNoisyValue = 0;
 let harshHarmoniousValue = 0;
@@ -12,9 +13,20 @@ let mildAcidValue = 50;
 let coldWarmValue = 50;
 let wetDryValue = 50;
 
+
+///////////////////
+// HTML EVENTS ///
+/////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
 
     // controls
+
+    document.getElementById('gridSize').addEventListener('input', function (e) {
+        gridSize = e.target.value;
+        tabColor = randomColorGrid();
+    });
+
 
     document.getElementById('silentNoisy').addEventListener('input', function (e) {
         silentNoisyValue = e.target.value;
@@ -51,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    document.getElementById('wetDry').addEventListener('input', function (e) {
+    document.getElementById('wetDry').addEventListener('change', function (e) {
         wetDryValue = e.target.value;
 
     });
@@ -59,6 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
 });
+
+
+////////////////
+// FIREBASE ///
+//////////////
 
 const firebaseConfig = {
     apiKey: "AIzaSyAZHLuqxB9hJEkvtIt4j0iDruEt6aBleK8",
@@ -75,29 +92,6 @@ const app = firebase.initializeApp(firebaseConfig);
 
 // Get a reference to the Firestore database
 const db = firebase.firestore();
-
-function preload() {
-    // Charger l'image et le shader
-    // img = loadImage('image.png'); // Remplace par ton image
-    waterShader = loadShader('water.vert', 'water.frag');
-}
-
-async function setup() {
-    createCanvas(WIDTH, HEIGHT, WEBGL);
-    waterLayer = createGraphics(WIDTH, HEIGHT, WEBGL);
-    waterLayer.colorMode(RGB);
-    waterLayer.background(0);
-    waterLayer.noStroke();
-
-    // Call fetch_colors to initiate the color fetching process
-    colors = await fetch_colors();
-}
-
-async function changeColor() {
-    console.log('changeColor');
-    tabColor = await fetch_colors();
-    await saveData();
-}
 
 async function saveData() {
     // Créer un objet avec des données
@@ -123,6 +117,35 @@ async function saveData() {
     }
 }
 
+
+///////////////////
+// CANVAS P5.JS //
+/////////////////
+
+function preload() {
+    // Charger l'image et le shader
+    // img = loadImage('image.png'); // Remplace par ton image
+    waterShader = loadShader('water.vert', 'water.frag');
+}
+
+async function setup() {
+    createCanvas(WIDTH, HEIGHT, WEBGL);
+    waterLayer = createGraphics(WIDTH, HEIGHT, WEBGL);
+    waterLayer.colorMode(RGB);
+    waterLayer.background(0);
+    waterLayer.noStroke();
+
+    // Call fetch_colors to initiate the color fetching process
+    colors = await fetch_colors();
+}
+
+async function changeColor() {
+    console.log('changeColor');
+    tabColor = await fetch_colors();
+    await saveData();
+}
+
+
 //choisir 4 couleurs
 async function fetch_colors() {
     tabColor = [];
@@ -134,24 +157,28 @@ async function fetch_colors() {
         const data = await response.json();
 
         // Push colors into the array
-        colors = data.colors.map(color => color.rgb);
+        colorPalette = data.colors.map(color => color.rgb);
         data.colors.forEach(color => console.log('%c' + color.hex.value, `color: ${color.hex.value}`));
 
-        for (let j = 0; j < gridSize; j++) {
-            tabColor[j] = [];
-            for (let i = 0; i < gridSize; i++) {
-                const colorIndex = Math.floor(Math.random() * colors.length);
-                let color = colors[colorIndex];
-                color.index = colorIndex;
-                tabColor[j][i] = color;
-            }
-        }
-
-        return tabColor;
+        return randomColorGrid();
 
     } catch (error) {
         console.error('Error fetching colors:', error);
     }
+}
+
+function randomColorGrid() {
+    for (let j = 0; j < gridSize; j++) {
+        tabColor[j] = [];
+        for (let i = 0; i < gridSize; i++) {
+            const colorIndex = Math.floor(Math.random() * colorPalette.length);
+            let color = colorPalette[colorIndex];
+            color.index = colorIndex;
+            tabColor[j][i] = color;
+        }
+    }
+
+    return tabColor;
 }
 
 async function drawMosaic() {
@@ -231,7 +258,9 @@ function draw() {
 }
 
 
-// effets couleurs
+/////////////////////
+// EFFETS VISUELS //
+///////////////////
 
 function vibration() {
     const vibrationStrength = silentNoisyValue / 97;

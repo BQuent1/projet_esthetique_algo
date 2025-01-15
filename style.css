@@ -13,6 +13,7 @@ body {
 
 canvas {
     filter: blur(var(--blur-amount));
+    transform: scale(1.1);
 }
 
 main {
@@ -33,6 +34,7 @@ main {
     width: fit-content;
     background-color: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(40px) saturate(180%);
+    z-index: 10;
 }
 
 h2 {
@@ -50,6 +52,7 @@ h2 {
 
 .slider-container {
     display: flex;
+    flex-direction: row!important;
     align-items: center;
 }
 
