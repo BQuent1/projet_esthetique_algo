@@ -6,7 +6,7 @@ let silentNoisyValue = 0;
 let harshHarmoniousValue = 0;
 let passiveActiveValue = 0;
 let dullBrightValue = 50;
-let sugaryBitterValue = 50;
+let sugaryBitterValue = 0;
 let mildAcidValue = 50;
 let coldWarmValue = 50;
 let wetDryValue = 50;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-    document.getElementById('passiveActive').addEventListener('input', function (e) {
+    document.getElementById('passiveActive').addEventListener('change', function (e) {
         passiveActiveValue = e.target.value;
 
     });
@@ -104,7 +104,7 @@ async function saveData() {
         coldWarmValue,
         wetDryValue
     };
-    
+
     // Créer un document dans Firestore
     try {
         await db.collection('palette-reviews').add(doc);
@@ -168,17 +168,34 @@ async function drawMosaic() {
             if (randomColor.index == 0) {
                 posX += vibration();
                 posY += vibration();
+                fill(randomColor.r, randomColor.g, randomColor.b);
+                rect(posX, posY, width, height);
             }
 
-            if(randomColor.index == 1) {
+            else if (randomColor.index == 1) {
                 danse(posX, posY, width, height);
                 posX = 0;
                 posY = 0;
+                fill(randomColor.r, randomColor.g, randomColor.b);
+                rect(posX, posY, width, height);
             }
 
+            else if (randomColor.index == 3) {
+                fill(randomColor.r, randomColor.g, randomColor.b);
+                drawAcidRectangle(posX, posY, width, height, mildAcidValue);
+            }
 
-            fill(randomColor.r, randomColor.g, randomColor.b);
-            rect(posX, posY, width, height);
+            else if (randomColor.index == 2) {
+                fill(randomColor.r, randomColor.g, randomColor.b);
+                rect(posX, posY, width, height);
+                particles(posX, posY, width, height);
+                
+            }
+
+            else{
+                fill(randomColor.r, randomColor.g, randomColor.b);
+                rect(posX, posY, width, height);
+            }
             pop();
 
         }
@@ -194,14 +211,47 @@ function draw() {
 // effets couleurs
 
 function vibration() {
-    const vibrationStrength = silentNoisyValue/98;
+    const vibrationStrength = silentNoisyValue / 97;
     return random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
 }
 
 function danse(xPos, yPos, cellWidth, cellHeight) {
     translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
-    rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
-    rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    rotateY(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
+    rotateX(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
     rectMode(CENTER);
+}
+
+function particles(x, y, w, h) {
+    let numParticles = sugaryBitterValue / 20; // Nombre de particules
+    for (let i = 0; i < numParticles; i++) {
+        let px = x + random(-w / 2, w / 2) + w / 2; // Position x aléatoire dans le rectangle
+        let py = y + random(-h / 2, h / 2) + h / 2; // Position y aléatoire dans le rectangle
+        let size = random(1, 2);
+
+        fill(255, random(200, 255), random(200, 255), random(100, 200));
+        noStroke();
+        ellipse(px, py, size, size); // Dessiner la particule
+    }
+}
+
+function drawAcidRectangle(x, y, w, h, acidValue) {
+    let cornerRadius = map(acidValue, 0, 100, w / 4, 0); // Plus acidValue est élevé, moins le rayon est grand
+
+    if (acidValue > 80) {
+        beginShape();
+        vertex((x+w/2) - w / 2, (y+h/2) - h / 2); // Haut gauche
+        vertex((x+w/2), (y+h/2) - h / 2 - map(acidValue, 80, 100, 0, h / 4)); // Pic haut
+        vertex((x+w/2) + w / 2, (y+h/2) - h / 2); // Haut droit
+        vertex((x+w/2) + w / 2 + map(acidValue, 80, 100, 0, w / 4), (y+h/2)); // Pic droit
+        vertex((x+w/2) + w / 2, (y+h/2) + h / 2); // Bas droit
+        vertex((x+w/2), (y+h/2) + h / 2 + map(acidValue, 80, 100, 0, h / 4)); // Pic bas
+        vertex((x+w/2) - w / 2, (y+h/2) + h / 2); // Bas gauche
+        vertex((x+w/2) - w / 2 - map(acidValue, 80, 100, 0, w / 4), (y+h/2)); // Pic gauche
+        endShape(CLOSE);
+    } else {
+        // Si acidValue est faible, dessiner des coins arrondis
+        rect(x, y, w, h, cornerRadius);
+    }
 }
 
