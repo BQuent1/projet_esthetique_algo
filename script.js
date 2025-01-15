@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('harshHarmonious').addEventListener('input', function (e) {
         harshHarmoniousValue = e.target.value;
-        document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue/5}px`;
+        document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue / 5}px`;
     });
 
     document.getElementById('passiveActive').addEventListener('change', function (e) {
@@ -70,13 +70,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
-    window.addEventListener('keydown', function(event) {
+    window.addEventListener('keydown', function (event) {
         if (event.code === 'Space') { // 'Space' correspond à la barre d'espace
             changeColor();
         }
     });
-    
-    
+
+
 
 });
 
@@ -225,16 +225,22 @@ async function drawMosaic() {
             else if (randomColor.index == 3) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 drawAcidRectangle(posX, posY, width, height, mildAcidValue);
+                let d = dist(mouseX, mouseY, posX + width / 2, posY + height / 2); // Distance souris à cellule
+                if (d < width / 2) { // Si la souris est dans la cellule
+                    let haloSize = map(d, 0, width / 2, 20, 60); // Taille du halo basée sur la distance de la souris
+                    drawGodRays(posX + width / 2, posY + height / 2, width); // Dessiner les "god rays"
+                }
+
             }
 
             else if (randomColor.index == 2) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
                 particles(posX, posY, width, height);
-                
+
             }
 
-            else{
+            else {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
             }
@@ -251,7 +257,7 @@ function draw() {
     waterShader.setUniform('u_resolution', [width, height]);
     waterShader.setUniform('u_time', millis() / 1000.0);
     waterShader.setUniform('u_texture', waterLayer);
-    waterShader.setUniform('u_modifier', wetDryValue/100);
+    waterShader.setUniform('u_modifier', wetDryValue / 100);
     texture(waterShader);
     beginShape();
     // Chaque sommet (vertex) a des coordonnées (x, y) et (u, v)
@@ -276,8 +282,8 @@ function vibration() {
 
 function danse(xPos, yPos, cellWidth, cellHeight) {
     waterLayer.translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
-    waterLayer.rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
-    waterLayer.rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    waterLayer.rotateY(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
+    waterLayer.rotateX(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
     waterLayer.rectMode(CENTER);
 }
 
@@ -295,7 +301,7 @@ function particles(x, y, w, h) {
 }
 
 function drawAcidRectangle(x, y, w, h, acidValue) {
-    let cornerRadius = map(acidValue, 0, 50, max(w, h)/2, 0); // Plus acidValue est faible, plus le rayon est grand
+    let cornerRadius = map(acidValue, 0, 50, max(w, h) / 2, 0); // Plus acidValue est faible, plus le rayon est grand
     let scaleValue = map(acidValue, 0, 50, max(w, h) / 4, 0); // La forme grossit proportionnellement à la diminution de l'acidité
 
     waterLayer.push();
@@ -303,11 +309,11 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
 
     if (acidValue > 50) {
         waterLayer.beginShape();
-    
+
         const numPointsTopBottom = 20; // Nombre de points pour le haut et le bas
         const numPointsSides = 12; // Nombre de points pour les côtés gauche et droit
         const spikeLength = map(acidValue, 50, 100, h * 0.05, h * 0.2); // Longueur des pics, en fonction de acidValue
-    
+
         // Haut du rectangle
         for (let i = 0; i < numPointsTopBottom; i++) {
             const xPos = x + (i / (numPointsTopBottom - 1)) * w; // Position horizontale
@@ -319,7 +325,7 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
                 waterLayer.vertex(xPos, y - spikeLength);
             }
         }
-    
+
         // Côté droit du rectangle
         for (let i = 0; i < numPointsSides; i++) {
             const yPos = y + (i / (numPointsSides - 1)) * h; // Position verticale
@@ -331,7 +337,7 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
                 waterLayer.vertex(x + w + spikeLength, yPos);
             }
         }
-    
+
         // Bas du rectangle
         for (let i = 0; i < numPointsTopBottom; i++) {
             const xPos = x + w - (i / (numPointsTopBottom - 1)) * w; // Position horizontale inversée
@@ -343,7 +349,7 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
                 waterLayer.vertex(xPos, y + h + spikeLength);
             }
         }
-    
+
         // Côté gauche du rectangle
         for (let i = 0; i < numPointsSides; i++) {
             const yPos = y + h - (i / (numPointsSides - 1)) * h; // Position verticale inversée
@@ -355,25 +361,44 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
                 waterLayer.vertex(x - spikeLength, yPos);
             }
         }
-    
+
         waterLayer.endShape(CLOSE);
     }
-    
-    
-    
-     else {
+    else {
         // Acidité faible : Dessiner une forme arrondie et plus grande
         waterLayer.rectMode(CENTER);
         waterLayer.noStroke();
         waterLayer.rect(
-            x + w/2, 
-            y + h/2, 
+            x + w / 2,
+            y + h / 2,
             w + scaleValue, // Largeur augmentée
             h + scaleValue, // Hauteur augmentée
             cornerRadius    // Coins arrondis
         );
     }
 
+    waterLayer.pop();
+}
+
+
+function drawGodRays(x, y, size) {
+    const rayCount = 12; // Nombre de rayons lumineux
+    const maxRayLength = size * 2; // Longueur maximale des rayons
+
+    waterLayer.push();
+    waterLayer.noFill();
+    waterLayer.stroke(255, 255, 255, 150); // Blanc lumineux avec une opacité partielle
+
+    // Dessiner les rayons lumineux partant du centre de la cellule
+    for (let i = 0; i < rayCount; i++) {
+        const angle = map(i, 0, rayCount, 0, TWO_PI); // Calculer un angle pour chaque rayon
+        const endX = x + cos(angle) * maxRayLength;
+        const endY = y + sin(angle) * maxRayLength;
+        
+        // Degrader la couleur pour donner un effet lumineux (alpha diminue au fur et à mesure)
+        waterLayer.strokeWeight(3);
+        waterLayer.line(x, y, endX, endY);
+    }
     waterLayer.pop();
 }
 
