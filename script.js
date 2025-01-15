@@ -13,6 +13,43 @@ let mildAcidValue = 50;
 let coldWarmValue = 50;
 let wetDryValue = 50;
 
+let drops = []; // Tableau pour stocker les gouttes
+
+// Classe pour les gouttes
+class Drop {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = width/gridSize; // Taille initiale de la goutte
+        this.speed = random(1, 3); // Vitesse de la chute
+        this.alpha = 255; // Opacité initiale
+        this.gravity = random(0.1, 0.3); // Gravité (peut simuler un effet plus fluide ou lent)
+    }
+
+    // Mettre à jour la position de la goutte (l'effet de chute)
+    update() {
+        this.y -= this.speed + this.gravity; // La goutte tombe plus vite avec un peu de gravité
+        this.alpha -= 10; // Réduction de la transparence pour l'effet de fusion
+        this.size *= 0.99; // Réduction progressive de la taille de la goutte pour simuler un écoulement fluide
+
+        if (this.alpha < 0) {
+            this.alpha = 0; // S'arrête à une opacité nulle
+        }
+    }
+
+    // Dessiner la goutte
+    draw() {
+        waterLayer.push();
+        waterLayer.noStroke();
+        waterLayer.fill(this.color.r, this.color.g, this.color.b, this.alpha); // Couleur avec transparence
+        waterLayer.ellipse(this.x, this.y, this.size, this.size);
+        waterLayer.pop();
+    }
+}
+
+
+
 
 ///////////////////
 // HTML EVENTS ///
@@ -70,8 +107,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
-    window.addEventListener('keydown', function (event) {
-        if (event.code === 'Space') { // 'Space' correspond à la barre d'espace
+    window.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') {
             changeColor();
         }
     });
@@ -168,6 +205,8 @@ async function fetch_colors() {
         colorPalette = data.colors.map(color => color.rgb);
         data.colors.forEach(color => console.log('%c' + color.hex.value, `color: ${color.hex.value}`));
 
+        document.getElementById('controlPart').style.cssText = `--palette-1: ${data.colors[0].hex.value}; --palette-2: ${data.colors[1].hex.value}; --palette-3: ${data.colors[2].hex.value}; --palette-4: ${data.colors[3].hex.value}`;
+
         return randomColorGrid();
 
     } catch (error) {
@@ -212,6 +251,8 @@ async function drawMosaic() {
                 posY += vibration();
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
+                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+
             }
 
             else if (randomColor.index == 1) {
@@ -220,16 +261,14 @@ async function drawMosaic() {
                 posY = 0;
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
+                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+
             }
 
             else if (randomColor.index == 3) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 drawAcidRectangle(posX, posY, width, height, mildAcidValue);
-                let d = dist(mouseX, mouseY, posX + width / 2, posY + height / 2); // Distance souris à cellule
-                if (d < width / 2) { // Si la souris est dans la cellule
-                    let haloSize = map(d, 0, width / 2, 20, 60); // Taille du halo basée sur la distance de la souris
-                    drawGodRays(posX + width / 2, posY + height / 2, width); // Dessiner les "god rays"
-                }
+                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
 
             }
 
@@ -237,15 +276,29 @@ async function drawMosaic() {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
                 particles(posX, posY, width, height);
-
+                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+     
             }
 
             else {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
+                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+
             }
             waterLayer.pop();
 
+        }
+    }
+
+    for (let i = drops.length - 1; i >= 0; i--) {
+        let drop = drops[i];
+        drop.update(); // Met à jour la position de la goutte
+        drop.draw(); // Dessine la goutte
+
+        // Si la goutte est complètement transparente, on la retire
+        if (drop.alpha <= 0) {
+            drops.splice(i, 1); // Retirer la goutte du tableau
         }
     }
 }
@@ -380,26 +433,12 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
     waterLayer.pop();
 }
 
-
-function drawGodRays(x, y, size) {
-    const rayCount = 12; // Nombre de rayons lumineux
-    const maxRayLength = size * 2; // Longueur maximale des rayons
-
-    waterLayer.push();
-    waterLayer.noFill();
-    waterLayer.stroke(255, 255, 255, 150); // Blanc lumineux avec une opacité partielle
-
-    // Dessiner les rayons lumineux partant du centre de la cellule
-    for (let i = 0; i < rayCount; i++) {
-        const angle = map(i, 0, rayCount, 0, TWO_PI); // Calculer un angle pour chaque rayon
-        const endX = x + cos(angle) * maxRayLength;
-        const endY = y + sin(angle) * maxRayLength;
-        
-        // Degrader la couleur pour donner un effet lumineux (alpha diminue au fur et à mesure)
-        waterLayer.strokeWeight(3);
-        waterLayer.line(x, y, endX, endY);
+// Fonction pour générer l'effet de dégoulinade à partir d'une position de cellule
+function createDrippingEffect(x, y, color) {
+    // Créer plusieurs gouttes pour simuler l'écoulement
+    for (let i = 0; i < 1; i++) {
+        drops.push(new Drop(x, y, color)); // Ajouter une nouvelle goutte
     }
-    waterLayer.pop();
 }
 
 
