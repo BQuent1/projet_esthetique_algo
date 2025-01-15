@@ -259,29 +259,38 @@ function particles(x, y, w, h) {
 }
 
 function drawAcidRectangle(x, y, w, h, acidValue) {
-    let cornerRadius = map(acidValue, 0, 100, w / 4, 0); // Plus acidValue est élevé, moins le rayon est grand
+    let cornerRadius = map(acidValue, 0, 50, max(w, h)/2, 0); // Plus acidValue est faible, plus le rayon est grand
+    let scaleValue = map(acidValue, 0, 50, max(w, h) / 4, 0); // La forme grossit proportionnellement à la diminution de l'acidité
 
     waterLayer.push();
-    waterLayer.translate(0, 0, .1);
+    waterLayer.translate(0, 0, 0.1);
+
     if (acidValue > 50) {
+        // Acidité élevée : Dessiner une forme pointue
         waterLayer.beginShape();
-        waterLayer.vertex((x+w/2) - w / 2, (y+h/2) - h / 2); // Haut gauche
-        waterLayer.vertex((x+w/2), (y+h/2) - h / 2 - map(acidValue, 50, 100, 0, h / 4)); // Pic haut
-        waterLayer.vertex((x+w/2) + w / 2, (y+h/2) - h / 2); // Haut droit
-        waterLayer.vertex((x+w/2) + w / 2 + map(acidValue, 50, 100, 0, w / 4), (y+h/2)); // Pic droit
-        waterLayer.vertex((x+w/2) + w / 2, (y+h/2) + h / 2); // Bas droit
-        waterLayer.vertex((x+w/2), (y+h/2) + h / 2 + map(acidValue, 50, 100, 0, h / 4)); // Pic bas
-        waterLayer.vertex((x+w/2) - w / 2, (y+h/2) + h / 2); // Bas gauche
-        waterLayer.vertex((x+w/2) - w / 2 - map(acidValue, 50, 100, 0, w / 4), (y+h/2)); // Pic gauche
+        waterLayer.vertex((x + w / 2) - w / 2, (y + h / 2) - h / 2); // Haut gauche
+        waterLayer.vertex((x + w / 2), (y + h / 2) - h / 2 - map(acidValue, 50, 100, 0, h / 4)); // Pic haut
+        waterLayer.vertex((x + w / 2) + w / 2, (y + h / 2) - h / 2); // Haut droit
+        waterLayer.vertex((x + w / 2) + w / 2 + map(acidValue, 50, 100, 0, w / 4), (y + h / 2)); // Pic droit
+        waterLayer.vertex((x + w / 2) + w / 2, (y + h / 2) + h / 2); // Bas droit
+        waterLayer.vertex((x + w / 2), (y + h / 2) + h / 2 + map(acidValue, 50, 100, 0, h / 4)); // Pic bas
+        waterLayer.vertex((x + w / 2) - w / 2, (y + h / 2) + h / 2); // Bas gauche
+        waterLayer.vertex((x + w / 2) - w / 2 - map(acidValue, 50, 100, 0, w / 4), (y + h / 2)); // Pic gauche
         waterLayer.endShape(CLOSE);
     } else {
+        // Acidité faible : Dessiner une forme arrondie et plus grande
         waterLayer.rectMode(CENTER);
-        // waterLayer.scale(1.1)
-        // Si acidValue est faible, dessiner des coins arrondis
-        const scaleValue = 0 - acidValue / 2;
-        // waterLayer.rectMode(CENTER)
-        waterLayer.rect(x - scaleValue/2, y - scaleValue/2, w + scaleValue, h + scaleValue, cornerRadius);
+        waterLayer.noStroke();
+        waterLayer.rect(
+            x + w/2, 
+            y + h/2, 
+            w + scaleValue, // Largeur augmentée
+            h + scaleValue, // Hauteur augmentée
+            cornerRadius    // Coins arrondis
+        );
     }
+
     waterLayer.pop();
 }
+
 
