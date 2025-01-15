@@ -1,4 +1,4 @@
-const WIDTH = window.innerWidth - window.innerWidth / 4;
+const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 let waterLayer;
 const gridSize = 20;
