@@ -1,13 +1,13 @@
 const WIDTH = window.innerWidth - window.innerWidth / 4;
 const HEIGHT = window.innerHeight;
-const gridSize = 50;
 let waterLayer;
+const gridSize = 20;
 let tabColor = [];
 let silentNoisyValue = 0;
 let harshHarmoniousValue = 0;
 let passiveActiveValue = 0;
 let dullBrightValue = 50;
-let sugaryBitterValue = 50;
+let sugaryBitterValue = 0;
 let mildAcidValue = 50;
 let coldWarmValue = 50;
 let wetDryValue = 50;
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue/5}px`;
     });
 
-    document.getElementById('passiveActive').addEventListener('input', function (e) {
+    document.getElementById('passiveActive').addEventListener('change', function (e) {
         passiveActiveValue = e.target.value;
 
     });
@@ -111,7 +111,7 @@ async function saveData() {
         coldWarmValue,
         wetDryValue
     };
-    
+
     // Créer un document dans Firestore
     try {
         await db.collection('palette-reviews').add(doc);
@@ -175,17 +175,34 @@ async function drawMosaic() {
             if (randomColor.index == 0) {
                 posX += vibration();
                 posY += vibration();
+                waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+                waterLayer.rect(posX, posY, width, height);
             }
 
-            if(randomColor.index == 1) {
+            else if (randomColor.index == 1) {
                 danse(posX, posY, width, height);
                 posX = 0;
                 posY = 0;
+                waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+                waterLayer.rect(posX, posY, width, height);
             }
 
+            else if (randomColor.index == 3) {
+                waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+                drawAcidRectangle(posX, posY, width, height, mildAcidValue);
+            }
 
-            waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
-            waterLayer.rect(posX, posY, width, height);
+            else if (randomColor.index == 2) {
+                waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+                waterLayer.rect(posX, posY, width, height);
+                particles(posX, posY, width, height);
+                
+            }
+
+            else{
+                waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+                waterLayer.rect(posX, posY, width, height);
+            }
             waterLayer.pop();
 
         }
@@ -193,7 +210,6 @@ async function drawMosaic() {
 }
 
 function draw() {
-    background(255);
     waterLayer.background(0);
     drawMosaic();
     shader(waterShader);
@@ -218,7 +234,7 @@ function draw() {
 // effets couleurs
 
 function vibration() {
-    const vibrationStrength = silentNoisyValue/98;
+    const vibrationStrength = silentNoisyValue / 97;
     return random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
 }
 
@@ -227,5 +243,38 @@ function danse(xPos, yPos, cellWidth, cellHeight) {
     waterLayer.rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
     waterLayer.rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
     waterLayer.rectMode(CENTER);
+}
+
+function particles(x, y, w, h) {
+    let numParticles = sugaryBitterValue / 20; // Nombre de particules
+    for (let i = 0; i < numParticles; i++) {
+        let px = x + random(-w / 2, w / 2) + w / 2; // Position x aléatoire dans le rectangle
+        let py = y + random(-h / 2, h / 2) + h / 2; // Position y aléatoire dans le rectangle
+        let size = random(1, 2);
+
+        waterLayer.fill(255, random(200, 255), random(200, 255), random(100, 200));
+        waterLayer.noStroke();
+        waterLayer.ellipse(px, py, size, size); // Dessiner la particule
+    }
+}
+
+function drawAcidRectangle(x, y, w, h, acidValue) {
+    let cornerRadius = map(acidValue, 0, 100, w / 4, 0); // Plus acidValue est élevé, moins le rayon est grand
+
+    if (acidValue > 80) {
+        waterLayer.beginShape();
+        waterLayer.vertex((x+w/2) - w / 2, (y+h/2) - h / 2); // Haut gauche
+        waterLayer.vertex((x+w/2), (y+h/2) - h / 2 - map(acidValue, 80, 100, 0, h / 4)); // Pic haut
+        waterLayer.vertex((x+w/2) + w / 2, (y+h/2) - h / 2); // Haut droit
+        waterLayer.vertex((x+w/2) + w / 2 + map(acidValue, 80, 100, 0, w / 4), (y+h/2)); // Pic droit
+        waterLayer.vertex((x+w/2) + w / 2, (y+h/2) + h / 2); // Bas droit
+        waterLayer.vertex((x+w/2), (y+h/2) + h / 2 + map(acidValue, 80, 100, 0, h / 4)); // Pic bas
+        waterLayer.vertex((x+w/2) - w / 2, (y+h/2) + h / 2); // Bas gauche
+        waterLayer.vertex((x+w/2) - w / 2 - map(acidValue, 80, 100, 0, w / 4), (y+h/2)); // Pic gauche
+        waterLayer.endShape(CLOSE);
+    } else {
+        // Si acidValue est faible, dessiner des coins arrondis
+        waterLayer.rect(x, y, w, h, cornerRadius);
+    }
 }
 
