@@ -1,6 +1,7 @@
 const WIDTH = window.innerWidth - window.innerWidth / 4;
 const HEIGHT = window.innerHeight;
-const gridSize = 20;
+const gridSize = 50;
+let waterLayer;
 let tabColor = [];
 let silentNoisyValue = 0;
 let harshHarmoniousValue = 0;
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('harshHarmonious').addEventListener('input', function (e) {
         harshHarmoniousValue = e.target.value;
-
+        document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue/5}px`;
     });
 
     document.getElementById('passiveActive').addEventListener('input', function (e) {
@@ -75,12 +76,18 @@ const app = firebase.initializeApp(firebaseConfig);
 // Get a reference to the Firestore database
 const db = firebase.firestore();
 
+function preload() {
+    // Charger l'image et le shader
+    // img = loadImage('image.png'); // Remplace par ton image
+    waterShader = loadShader('water.vert', 'water.frag');
+}
+
 async function setup() {
-    console.log(WIDTH, HEIGHT);
     createCanvas(WIDTH, HEIGHT, WEBGL);
-    colorMode(RGB);
-    background(0);
-    noStroke();
+    waterLayer = createGraphics(WIDTH, HEIGHT, WEBGL);
+    waterLayer.colorMode(RGB);
+    waterLayer.background(0);
+    waterLayer.noStroke();
 
     // Call fetch_colors to initiate the color fetching process
     colors = await fetch_colors();
@@ -163,7 +170,7 @@ async function drawMosaic() {
             let posY = j * (HEIGHT / gridSize) - HEIGHT / 2;
             let width = WIDTH / gridSize;
             let height = HEIGHT / gridSize;
-            push();
+            waterLayer.push();
 
             if (randomColor.index == 0) {
                 posX += vibration();
@@ -177,17 +184,34 @@ async function drawMosaic() {
             }
 
 
-            fill(randomColor.r, randomColor.g, randomColor.b);
-            rect(posX, posY, width, height);
-            pop();
+            waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
+            waterLayer.rect(posX, posY, width, height);
+            waterLayer.pop();
 
         }
     }
 }
 
 function draw() {
-    background(0);
+    background(255);
+    waterLayer.background(0);
     drawMosaic();
+    shader(waterShader);
+    waterShader.setUniform('u_resolution', [width, height]);
+    waterShader.setUniform('u_time', millis() / 1000.0);
+    waterShader.setUniform('u_texture', waterLayer);
+    waterShader.setUniform('u_modifier', wetDryValue/100);
+    
+    // plane(WIDTH, HEIGHT);
+    beginShape();
+    // Chaque sommet (vertex) a des coordonnées (x, y) et (u, v)
+    vertex(-1, -1, 0, 0); // Coin haut-gauche de l'image
+    vertex(1, -1, 1, 0); // Étend horizontalement (1.5 = 150% de largeur)
+    vertex(1, 1, 1, 1); // Coin bas-droit
+    vertex(-1, 1, 0, 1); // Étend verticalement
+    endShape(CLOSE);
+    // rect(-WIDTH / 2, -HEIGHT / 2, WIDTH/2, HEIGHT/2);
+
 }
 
 
@@ -199,9 +223,9 @@ function vibration() {
 }
 
 function danse(xPos, yPos, cellWidth, cellHeight) {
-    translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
-    rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
-    rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
-    rectMode(CENTER);
+    waterLayer.translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
+    waterLayer.rotateY(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
+    waterLayer.rotateX(frameCount * passiveActiveValue/1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    waterLayer.rectMode(CENTER);
 }
 

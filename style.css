@@ -11,6 +11,14 @@ body {
     overflow: hidden;
 }
 
+canvas {
+    filter: blur(var(--blur-amount));
+}
+
+main {
+    overflow: hidden;
+}
+
 #controlPart{
     flex-grow: 1;
     display: flex;
