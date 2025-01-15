@@ -58,6 +58,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
+    window.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') { // 'Space' correspond à la barre d'espace
+            changeColor();
+        }
+    });
+    
+    
+
 });
 
 const firebaseConfig = {
@@ -217,8 +225,7 @@ function draw() {
     waterShader.setUniform('u_time', millis() / 1000.0);
     waterShader.setUniform('u_texture', waterLayer);
     waterShader.setUniform('u_modifier', wetDryValue/100);
-    
-    // plane(WIDTH, HEIGHT);
+    texture(waterShader);
     beginShape();
     // Chaque sommet (vertex) a des coordonnées (x, y) et (u, v)
     vertex(-1, -1, 0, 0); // Coin haut-gauche de l'image
@@ -266,18 +273,66 @@ function drawAcidRectangle(x, y, w, h, acidValue) {
     waterLayer.translate(0, 0, 0.1);
 
     if (acidValue > 50) {
-        // Acidité élevée : Dessiner une forme pointue
         waterLayer.beginShape();
-        waterLayer.vertex((x + w / 2) - w / 2, (y + h / 2) - h / 2); // Haut gauche
-        waterLayer.vertex((x + w / 2), (y + h / 2) - h / 2 - map(acidValue, 50, 100, 0, h / 4)); // Pic haut
-        waterLayer.vertex((x + w / 2) + w / 2, (y + h / 2) - h / 2); // Haut droit
-        waterLayer.vertex((x + w / 2) + w / 2 + map(acidValue, 50, 100, 0, w / 4), (y + h / 2)); // Pic droit
-        waterLayer.vertex((x + w / 2) + w / 2, (y + h / 2) + h / 2); // Bas droit
-        waterLayer.vertex((x + w / 2), (y + h / 2) + h / 2 + map(acidValue, 50, 100, 0, h / 4)); // Pic bas
-        waterLayer.vertex((x + w / 2) - w / 2, (y + h / 2) + h / 2); // Bas gauche
-        waterLayer.vertex((x + w / 2) - w / 2 - map(acidValue, 50, 100, 0, w / 4), (y + h / 2)); // Pic gauche
+    
+        const numPointsTopBottom = 20; // Nombre de points pour le haut et le bas
+        const numPointsSides = 12; // Nombre de points pour les côtés gauche et droit
+        const spikeLength = map(acidValue, 50, 100, h * 0.05, h * 0.2); // Longueur des pics, en fonction de acidValue
+    
+        // Haut du rectangle
+        for (let i = 0; i < numPointsTopBottom; i++) {
+            const xPos = x + (i / (numPointsTopBottom - 1)) * w; // Position horizontale
+            if (i % 2 === 0) {
+                // Point "normal"
+                waterLayer.vertex(xPos, y);
+            } else {
+                // Pic vers le haut
+                waterLayer.vertex(xPos, y - spikeLength);
+            }
+        }
+    
+        // Côté droit du rectangle
+        for (let i = 0; i < numPointsSides; i++) {
+            const yPos = y + (i / (numPointsSides - 1)) * h; // Position verticale
+            if (i % 2 === 0) {
+                // Point "normal"
+                waterLayer.vertex(x + w, yPos);
+            } else {
+                // Pic vers l'extérieur
+                waterLayer.vertex(x + w + spikeLength, yPos);
+            }
+        }
+    
+        // Bas du rectangle
+        for (let i = 0; i < numPointsTopBottom; i++) {
+            const xPos = x + w - (i / (numPointsTopBottom - 1)) * w; // Position horizontale inversée
+            if (i % 2 === 0) {
+                // Point "normal"
+                waterLayer.vertex(xPos, y + h);
+            } else {
+                // Pic vers le bas
+                waterLayer.vertex(xPos, y + h + spikeLength);
+            }
+        }
+    
+        // Côté gauche du rectangle
+        for (let i = 0; i < numPointsSides; i++) {
+            const yPos = y + h - (i / (numPointsSides - 1)) * h; // Position verticale inversée
+            if (i % 2 === 0) {
+                // Point "normal"
+                waterLayer.vertex(x, yPos);
+            } else {
+                // Pic vers l'intérieur
+                waterLayer.vertex(x - spikeLength, yPos);
+            }
+        }
+    
         waterLayer.endShape(CLOSE);
-    } else {
+    }
+    
+    
+    
+     else {
         // Acidité faible : Dessiner une forme arrondie et plus grande
         waterLayer.rectMode(CENTER);
         waterLayer.noStroke();
