@@ -1,14 +1,15 @@
 *{
     margin: 0;
     color: rgba(255, 255, 255, 0.8);
-    background-color: #000;
 }
 
 body {
+    margin: 0;
+    height: 100vh;
     display: flex;
-    flex-direction: row-reverse;
-    font-family: "Poppins", sans-serif;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
 }
 
 canvas {
@@ -19,58 +20,71 @@ main {
     overflow: hidden;
 }
 
-#controlPart{
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
 h2 {
     text-align: center;
     text-transform: uppercase;
     font-size: 16px;
 }
 
-#controlPart > div {
-    padding: 24px;
+#controlPart {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    width: 80%; /* Ajuster selon vos besoins */
+    max-width: 500px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2); /* Fond transparent */
+    backdrop-filter: blur(10px); /* Effet de flou */
+    border-radius: 20px; /* Coins arrondis */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* Ombre douce */
+    color: white; /* Couleur du texte */
+}
+
+/* Alignement des sections */
+#controlPart h2 {
+    margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .slider-container {
     display: flex;
     align-items: center;
-}
-
-.slider-container input {
-    flex-grow: 1;
-    margin: 0 16px;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 .slider-container label {
-    width: 100px;
-}
-
-.slider-container label:last-child {
-    text-align: right;
-}
-
-#controlPart > #buttonPart{
-    display: flex;
-    flex-direction: row;
-    margin-top: auto;
-}
-
-#buttonPart > button{
-    padding: 8px 16px;
-    margin: 0 8px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
     color: white;
+    font-size: 14px;
+}
+
+/* Boutons */
+#buttonPart {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#buttonPart button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: black;
+    background: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    flex-grow: 1;
+    transition: 0.3s ease;
+}
+
+#buttonPart button:disabled {
+    background: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+#buttonPart button:hover:not(:disabled) {
+    background: #ddd;
 }
 
 /** CUSTOM RANGE INPUT STYLE **/
