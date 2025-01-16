@@ -81,6 +81,10 @@ h2 {
     margin-top: auto;
 }
 
+#nextButton{
+    display: none;
+}
+
 .palette {
     display: flex;
     flex-direction: row!important;

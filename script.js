@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('harshHarmonious').addEventListener('input', function (e) {
         harshHarmoniousValue = e.target.value;
-        document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue / 5}px`;
+        updateBlur();
     });
 
     document.getElementById('passiveActive').addEventListener('change', function (e) {
@@ -130,7 +130,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    document.getElementById('validButton').addEventListener('click', comparer);
     document.getElementById('nextButton').addEventListener('click', changeColor);
+
 
     document.getElementById('csvButton').addEventListener('click', async () => {
         const data = await fetchFullCollection();
@@ -201,8 +203,7 @@ async function fetchFullCollection() {
             console.log(doc.id, '=>', doc.data());
         });
         // save as csv
-        const data = snapshot.docs.map(doc => doc.data());
-        const csv = data.map(row => Object.values(row).join(',')).join('\n');
+        return snapshot.docs.map(doc => doc.data());
     }
     catch (e) {
         console.error("Erreur lors de la récupération des documents :", e);
@@ -211,7 +212,8 @@ async function fetchFullCollection() {
 
 function downloadCsv(data) {
     // download csv
-    const blob = new Blob([data], { type: 'text/csv' });
+    const csv = data.map(row => Object.values(row).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
@@ -246,6 +248,9 @@ async function setup() {
 }
 
 async function changeColor() {
+    document.getElementById('validButton').style.display = 'block';
+    document.getElementById('nextButton').style.display = 'none';
+
     console.log('changeColor');
     silentNoisyValue = 0;
     harshHarmoniousValue = 0;
@@ -255,6 +260,7 @@ async function changeColor() {
     mildAcidValue = 50;
     coldWarmValue = 0;
     wetDryValue = 0;
+    updateBlur();
     document.getElementById('silentNoisy').value = 0;
     document.getElementById('harshHarmonious').value = 0;
     document.getElementById('passiveActive').value = 0;
@@ -419,6 +425,43 @@ function draw() {
 }
 
 function comparer(){
+    const collection = fetchFullCollection();
+    document.getElementById('silentNoisy');
+    document.getElementById('harshHarmonious');
+    document.getElementById('passiveActive');
+    document.getElementById('dullBright');
+    document.getElementById('sugaryBitter');
+    document.getElementById('mildAcid');
+    document.getElementById('coldWarm');
+    document.getElementById('wetDry');
+    collection.then(data => {
+        const paletteData = data.filter(item => item.id === currentPalette);
+        if (paletteData.length > 0) {
+            const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+            silentNoisyValue = avg(paletteData.map(item => item.silentNoisyValue));
+            harshHarmoniousValue = avg(paletteData.map(item => item.harshHarmoniousValue));
+            passiveActiveValue = avg(paletteData.map(item => item.passiveActiveValue));
+            dullBrightValue = avg(paletteData.map(item => item.dullBrightValue));
+            sugaryBitterValue = avg(paletteData.map(item => item.sugaryBitterValue));
+            mildAcidValue = avg(paletteData.map(item => item.mildAcidValue));
+            coldWarmValue = avg(paletteData.map(item => item.coldWarmValue));
+            wetDryValue = avg(paletteData.map(item => item.wetDryValue));
+
+            console.log(silentNoisyValue, harshHarmoniousValue, passiveActiveValue, dullBrightValue, sugaryBitterValue, mildAcidValue, coldWarmValue, wetDryValue);
+
+            document.getElementById('silentNoisy').value = silentNoisyValue;
+            document.getElementById('harshHarmonious').value = harshHarmoniousValue;
+            document.getElementById('passiveActive').value = passiveActiveValue;
+            document.getElementById('dullBright').value = dullBrightValue;
+            document.getElementById('sugaryBitter').value = sugaryBitterValue;
+            document.getElementById('mildAcid').value = mildAcidValue;
+            document.getElementById('coldWarm').value = coldWarmValue;
+            document.getElementById('wetDry').value = wetDryValue;
+        }
+    });
+
+    document.getElementById('validButton').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'block';
     
 }
 
@@ -555,4 +598,8 @@ function drawFrostedEdges(x, y, w, h, frostFactor) {
     }
 
     waterLayer.pop();
+}
+
+function updateBlur() {
+    document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue / 5}px`;
 }
