@@ -107,6 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
+    document.getElementById('csvButton').addEventListener('click', async () => {
+        const data = await fetchFullCollection();
+        downloadCsv(data);
+    });
+
     window.addEventListener('keydown', function (event) {
         if (event.code === 'Space') {
             changeColor();
@@ -160,6 +165,36 @@ async function saveData() {
     catch (e) {
         console.error("Erreur lors de l'écriture du document :", e);
     }
+}
+
+async function fetchFullCollection() {
+    // Récupérer tous les documents de la collection
+    try {
+        const snapshot = await db.collection('palette-reviews').get();
+        snapshot.forEach(doc => {
+            console.log(doc.id, '=>', doc.data());
+        });
+        // save as csv
+        const data = snapshot.docs.map(doc => doc.data());
+        const csv = data.map(row => Object.values(row).join(',')).join('\n');
+    }
+    catch (e) {
+        console.error("Erreur lors de la récupération des documents :", e);
+    }
+}
+
+function downloadCsv(data) {
+    // download csv
+    const blob = new Blob([data], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'palette-reviews.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 
