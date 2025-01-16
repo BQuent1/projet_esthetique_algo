@@ -10,8 +10,8 @@ let passiveActiveValue = 0;
 let dullBrightValue = 50;
 let sugaryBitterValue = 0;
 let mildAcidValue = 50;
-let coldWarmValue = 50;
-let wetDryValue = 50;
+let coldWarmValue = 0;
+let wetDryValue = 0;
 
 let drops = []; // Tableau pour stocker les gouttes
 
@@ -21,16 +21,16 @@ class Drop {
         this.x = x;
         this.y = y;
         this.color = color;
-        this.size = width/gridSize; // Taille initiale de la goutte
-        this.speed = random(1, 3); // Vitesse de la chute
+        this.size = width / gridSize; // Taille initiale de la goutte
+        this.speed = random(1, 2); // Vitesse de la chute
         this.alpha = 255; // Opacité initiale
-        this.gravity = random(0.1, 0.3); // Gravité (peut simuler un effet plus fluide ou lent)
+        this.gravity = coldWarmValue / 97; // Gravité (peut simuler un effet plus fluide ou lent)
     }
 
     // Mettre à jour la position de la goutte (l'effet de chute)
     update() {
         this.y -= this.speed + this.gravity; // La goutte tombe plus vite avec un peu de gravité
-        this.alpha -= 10; // Réduction de la transparence pour l'effet de fusion
+        this.alpha -= 3; // Réduction de la transparence pour l'effet de fusion
         this.size *= 0.99; // Réduction progressive de la taille de la goutte pour simuler un écoulement fluide
 
         if (this.alpha < 0) {
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
-    window.addEventListener('keydown', function(event) {
+    window.addEventListener('keydown', function (event) {
         if (event.code === 'Space') {
             changeColor();
         }
@@ -186,6 +186,14 @@ async function setup() {
 
 async function changeColor() {
     console.log('changeColor');
+    silentNoisyValue = 0;
+    harshHarmoniousValue = 0;
+    passiveActiveValue = 0;
+    dullBrightValue = 50;
+    sugaryBitterValue = 0;
+    mildAcidValue = 50;
+    coldWarmValue = 0;
+    wetDryValue = 0;
     tabColor = await fetch_colors();
     await saveData();
 }
@@ -251,7 +259,12 @@ async function drawMosaic() {
                 posY += vibration();
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
-                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+                if (coldWarmValue > 50) {
+                    createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
+                }
+                // else{
+                //     drawFrostedEdges(posX, posY, width, height, coldWarmValue);
+                // }
 
             }
 
@@ -261,30 +274,22 @@ async function drawMosaic() {
                 posY = 0;
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
-                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
-
             }
 
             else if (randomColor.index == 3) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 drawAcidRectangle(posX, posY, width, height, mildAcidValue);
-                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
-
             }
 
             else if (randomColor.index == 2) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
                 particles(posX, posY, width, height);
-                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
-     
             }
 
             else {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
-                createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
-
             }
             waterLayer.pop();
 
@@ -345,7 +350,7 @@ function particles(x, y, w, h) {
     for (let i = 0; i < numParticles; i++) {
         let px = x + random(-w / 2, w / 2) + w / 2; // Position x aléatoire dans le rectangle
         let py = y + random(-h / 2, h / 2) + h / 2; // Position y aléatoire dans le rectangle
-        let size = random(1, 2);
+        let size = random(1, 4);
 
         waterLayer.fill(255, random(200, 255), random(200, 255), random(100, 200));
         waterLayer.noStroke();
@@ -441,4 +446,19 @@ function createDrippingEffect(x, y, color) {
     }
 }
 
+function drawFrostedEdges(x, y, w, h, frostFactor) {
+    waterLayer.push();
+    
+    // Calcul de l'épaisseur de la bordure en fonction du facteur de givre
+    const borderThickness = map(frostFactor, 0, 100, 2, 15); // Variation de l'épaisseur de la bordure
 
+    // Dégradé de blanc à transparent (simule le givre)
+    for (let i = borderThickness; i > 0; i--) {
+        let alpha = map(i, borderThickness, 0, 255, 0); // Dégradé d'alpha (opacité)
+        waterLayer.stroke(255, 255, 255, alpha);
+        waterLayer.noFill();
+        waterLayer.rect(x - i / 2, y - i / 2, w + i, h + i); // Dessiner des rectangles concentriques
+    }
+
+    waterLayer.pop();
+}
