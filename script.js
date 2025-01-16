@@ -12,8 +12,33 @@ let sugaryBitterValue = 0;
 let mildAcidValue = 50;
 let coldWarmValue = 0;
 let wetDryValue = 0;
+let currentPalette;
 
 let drops = []; // Tableau pour stocker les gouttes
+let palettes = [
+    { id: 1, colors: ["eaf4d3", "dbd8ae", "ca907e", "994636"] },
+    { id: 2, colors: ["040403", "5b7553", "8eb897", "c3e8bd"] },
+    { id: 3, colors: ["bad1cd", "f2d1c9", "e086d3", "8332ac"] },
+    { id: 4, colors: ["011627", "ff0022", "41ead4", "fdfffc"] },
+    { id: 5, colors: ["8e5572", "f2f7f2", "c2b97f", "bcaa99"] },
+    { id: 6, colors: ["fffc31", "5c415d", "f6f7eb", "e94f37"] },
+    { id: 7, colors: ["83b692", "f9ada0", "f9627d", "c65b7c"] },
+    { id: 8, colors: ["ea526f", "070600", "f7f7ff", "23b5d3"] },
+    { id: 9, colors: ["c3a995", "ab947e", "6f5e53", "8a7968"] },
+    { id: 10, colors: ["006ba6", "0496ff", "ffbc42", "d81159"] },
+    { id: 11, colors: ["fbf2c0", "48392a", "43281c", "c06e52"] },
+    { id: 12, colors: ["bcf4f5", "b4ebca", "d9f2b4", "d3fac7"] },
+    { id: 13, colors: ["18206f", "17255a", "f5e2c8", "d88373"] },
+    { id: 14, colors: ["e5e059", "bdd358", "ffffff", "999799"] },
+    { id: 15, colors: ["5f0f40", "9a031e", "fb8b24", "e36414"] },
+    { id: 16, colors: ["f05d5e", "0f7173", "e7ecef", "272932"] },
+    { id: 17, colors: ["003844", "006c67", "f194b4", "ffb100"] },
+    { id: 18, colors: ["ffff82", "f5f7dc", "b5d99c", "0f0326"] },
+    { id: 19, colors: ["6e2594", "ecd444", "808080", "000000"] },
+    { id: 20, colors: ["561643", "6c0e23", "c42021", "f3ffb9"] }
+];
+
+
 
 // Classe pour les gouttes
 class Drop {
@@ -141,6 +166,7 @@ const db = firebase.firestore();
 async function saveData() {
     // Créer un objet avec des données
     const doc = {
+        id:currentPalette,
         silentNoisyValue,
         harshHarmoniousValue,
         passiveActiveValue,
@@ -194,6 +220,16 @@ async function changeColor() {
     mildAcidValue = 50;
     coldWarmValue = 0;
     wetDryValue = 0;
+    document.getElementById('silentNoisy').value = 0;
+    document.getElementById('harshHarmonious').value = 0;
+    document.getElementById('passiveActive').value = 0;
+    document.getElementById('dullBright').value = 50;
+    document.getElementById('sugaryBitter').value = 0;
+    document.getElementById('mildAcid').value = 50;
+    document.getElementById('coldWarm').value = 0;
+    document.getElementById('wetDry').value = 0;
+
+
     tabColor = await fetch_colors();
     await saveData();
 }
@@ -201,28 +237,47 @@ async function changeColor() {
 
 //choisir 4 couleurs
 async function fetch_colors() {
-    tabColor = [];
-    try {
-        const randomColor = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    // tabColor = [];
+    // try {
+    //     const randomColor = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
-        // Fetch color information from The Color API
-        const response = await fetch(`https://www.thecolorapi.com/scheme?hex=${randomColor}&mode=analogic-complement&count=4`);
-        const data = await response.json();
+    //     // Fetch color information from The Color API
+    //     const response = await fetch(`https://www.thecolorapi.com/scheme?hex=${randomColor}&mode=analogic-complement&count=4`);
+    //     const data = await response.json();
 
-        // Push colors into the array
-        colorPalette = data.colors.map(color => color.rgb);
-        data.colors.forEach(color => console.log('%c' + color.hex.value, `color: ${color.hex.value}`));
+    //     // Push colors into the array
+    //     colorPalette = data.colors.map(color => color.rgb);
+    //     data.colors.forEach(color => console.log('%c' + color.hex.value, `color: ${color.hex.value}`));
 
-        document.getElementById('controlPart').style.cssText = `--palette-1: ${data.colors[0].hex.value}; --palette-2: ${data.colors[1].hex.value}; --palette-3: ${data.colors[2].hex.value}; --palette-4: ${data.colors[3].hex.value}`;
+    //     document.getElementById('controlPart').style.cssText = `--palette-1: ${data.colors[0].hex.value}; --palette-2: ${data.colors[1].hex.value}; --palette-3: ${data.colors[2].hex.value}; --palette-4: ${data.colors[3].hex.value}`;
 
-        return randomColorGrid();
+    //     return randomColorGrid();
 
-    } catch (error) {
-        console.error('Error fetching colors:', error);
+    // } catch (error) {
+    //     console.error('Error fetching colors:', error);
+    // }
+
+    if(palettes.length == 0){
+        console.log("bien ouej t'as tout noté");
+        return;
     }
+    const palette = palettes.pop();
+    colorPalette = palette.colors.map(color => {
+        return {
+            r: parseInt(color.substring(0, 2), 16),
+            g: parseInt(color.substring(2, 4), 16),
+            b: parseInt(color.substring(4, 6), 16)
+        };
+    });
+    currentPalette = palette.id;
+    return randomColorGrid();
 }
 
 function randomColorGrid() {
+    if (gridSize == 2){
+        tabColor = [[colorPalette[0], colorPalette[1]], [colorPalette[2], colorPalette[3]]];
+        return tabColor;
+    }
     for (let j = 0; j < gridSize; j++) {
         tabColor[j] = [];
         for (let i = 0; i < gridSize; i++) {
@@ -326,6 +381,10 @@ function draw() {
     endShape(CLOSE);
     // rect(-WIDTH / 2, -HEIGHT / 2, WIDTH/2, HEIGHT/2);
 
+}
+
+function comparer(){
+    
 }
 
 
