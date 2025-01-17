@@ -19,19 +19,19 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
 }
 
 canvas {
     filter: blur(var(--blur-amount));
     transform: scale(1.1);
+    height: 100%!important;
 }
 
 section {
     padding: 48px 96px;
     height: 100vh;
     width: 100%;
-    overflow: auto;
+    /* overflow: auto; */
     display: flex;
     /* align-items: center; */
     justify-content: center;
