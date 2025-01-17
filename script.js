@@ -1,18 +1,52 @@
-const WIDTH = window.innerWidth;
+const WIDTH = window.innerHeight;
 const HEIGHT = window.innerHeight;
 let waterLayer;
 let gridSize = 20;
 let colorPalette = [];
 let tabColor = [];
-let silentNoisyValue = 0;
-let harshHarmoniousValue = 0;
-let passiveActiveValue = 0;
-let dullBrightValue = 50;
-let sugaryBitterValue = 0;
-let mildAcidValue = 50;
-let coldWarmValue = 0;
-let wetDryValue = 0;
+// let silentNoisyValue = 0;
+// let harshHarmoniousValue = 0;
+// let passiveActiveValue = 0;
+// let dullBrightValue = 50;
+// let sugaryBitterValue = 0;
+// let mildAcidValue = 50;
+// let coldWarmValue = 0;
+// let wetDryValue = 0;
 let currentPalette;
+const fields = ['silentNoisy', 'harshHarmonious', 'passiveActive', 'dullBright', 'sugaryBitter', 'mildAcid', 'coldWarm', 'wetDry'];
+let formData = {};
+let visualEffects = {}
+let averages = {};
+let stepCount = 1;
+
+const resetVisualEffects = () => {
+    visualEffects = {
+        silentNoisy: 50,
+        harshHarmonious: 50,
+        passiveActive: 50,
+        dullBright: 50,
+        sugaryBitter: 50,
+        mildAcid: 50,
+        coldWarm: 50,
+        wetDry: 50
+    }
+}
+
+const resetFormData = () => {
+    formData = {
+        silentNoisy: 50,
+        harshHarmonious: 50,
+        passiveActive: 50,
+        dullBright: 50,
+        sugaryBitter: 50,
+        mildAcid: 50,
+        coldWarm: 50,
+        wetDry: 50
+    }
+    fields.map(field => {
+        document.getElementById(field).value = formData[field];
+    });
+}
 
 let drops = []; // Tableau pour stocker les gouttes
 let palettes = [
@@ -38,7 +72,8 @@ let palettes = [
     { id: 20, colors: ["561643", "6c0e23", "c42021", "f3ffb9"] }
 ];
 
-
+// shuffle palette
+palettes = palettes.sort(() => Math.random() - 0.5);
 
 // Classe pour les gouttes
 class Drop {
@@ -49,7 +84,7 @@ class Drop {
         this.size = width / gridSize; // Taille initiale de la goutte
         this.speed = random(1, 2); // Vitesse de la chute
         this.alpha = 255; // Opacité initiale
-        this.gravity = coldWarmValue / 97; // Gravité (peut simuler un effet plus fluide ou lent)
+        this.gravity = visualEffects['coldWarm'] / 97; // Gravité (peut simuler un effet plus fluide ou lent)
     }
 
     // Mettre à jour la position de la goutte (l'effet de chute)
@@ -74,63 +109,65 @@ class Drop {
 }
 
 
-
-
 ///////////////////
 // HTML EVENTS ///
 /////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    resetVisualEffects();
+    resetFormData();
+
     // controls
 
     document.getElementById('gridSize').addEventListener('input', function (e) {
-        gridSize = e.target.value;
+        gridSize = parseInt(e.target.value);
         tabColor = randomColorGrid();
     });
 
 
     document.getElementById('silentNoisy').addEventListener('input', function (e) {
-        silentNoisyValue = e.target.value;
-
+        // silentNoisyValue = e.target.value;
+        formData['silentNoisy'] = parseInt(e.target.value);
     });
 
     document.getElementById('harshHarmonious').addEventListener('input', function (e) {
-        harshHarmoniousValue = e.target.value;
-        updateBlur();
+        // harshHarmoniousValue = e.target.value;
+        // updateBlur();
+        formData['harshHarmonious'] = parseInt(e.target.value);
     });
 
     document.getElementById('passiveActive').addEventListener('change', function (e) {
-        passiveActiveValue = e.target.value;
-
+        // visualEffects['passiveActive'] = e.target.value;
+        formData['passiveActive'] = parseInt(e.target.value);
     });
 
     document.getElementById('dullBright').addEventListener('input', function (e) {
-        dullBrightValue = e.target.value;
-
+        // dullBrightValue = e.target.value;
+        formData['dullBright'] = parseInt(e.target.value);
     });
 
     document.getElementById('sugaryBitter').addEventListener('input', function (e) {
-        sugaryBitterValue = e.target.value;
-
+        // sugaryBitterValue = e.target.value;
+        formData['sugaryBitter'] = parseInt(e.target.value);
     });
 
     document.getElementById('mildAcid').addEventListener('input', function (e) {
-        mildAcidValue = e.target.value;
-
+        // mildAcidValue = e.target.value;
+        formData['mildAcid'] = parseInt(e.target.value);
     });
 
     document.getElementById('coldWarm').addEventListener('input', function (e) {
-        coldWarmValue = e.target.value;
-
+        // coldWarmValue = e.target.value;
+        formData['coldWarm'] = parseInt(e.target.value);
     });
 
     document.getElementById('wetDry').addEventListener('change', function (e) {
-        wetDryValue = e.target.value;
-
+        // wetDryValue = e.target.value;
+        formData['wetDry'] = parseInt(e.target.value);
     });
 
-    document.getElementById('validButton').addEventListener('click', comparer);
+    document.getElementById('validButton').addEventListener('click', vote);
     document.getElementById('nextButton').addEventListener('click', changeColor);
 
 
@@ -139,11 +176,11 @@ document.addEventListener('DOMContentLoaded', function () {
         downloadCsv(data);
     });
 
-    window.addEventListener('keydown', function (event) {
-        if (event.code === 'Space') {
-            changeColor();
-        }
-    });
+    // window.addEventListener('keydown', function (event) {
+    //     if (event.code === 'Space') {
+    //         changeColor();
+    //     }
+    // });
 
 
 
@@ -174,14 +211,7 @@ async function saveData() {
     // Créer un objet avec des données
     const doc = {
         id:currentPalette,
-        silentNoisyValue,
-        harshHarmoniousValue,
-        passiveActiveValue,
-        dullBrightValue,
-        sugaryBitterValue,
-        mildAcidValue,
-        coldWarmValue,
-        wetDryValue
+        ...formData
     };
 
     // Créer un document dans Firestore
@@ -199,15 +229,36 @@ async function fetchFullCollection() {
     // Récupérer tous les documents de la collection
     try {
         const snapshot = await db.collection('palette-reviews').get();
-        snapshot.forEach(doc => {
-            console.log(doc.id, '=>', doc.data());
-        });
+        // snapshot.forEach(doc => {
+        //     console.log(doc.id, '=>', doc.data());
+        // });
         // save as csv
         return snapshot.docs.map(doc => doc.data());
     }
     catch (e) {
         console.error("Erreur lors de la récupération des documents :", e);
     }
+}
+
+async function getAverageValuesForPalette() {
+    const collection = await fetchFullCollection();
+    
+    const reviews = collection.filter(doc => doc.id == currentPalette);
+
+    const avg = (array, field) => {
+        const sum = array.reduce((a, b) => {
+            return a + b[field];
+        }, 0);
+        return Math.round(sum / array.length)
+    }
+
+    fields.map(field => {
+        averages[field] = avg(reviews, field) 
+        console.log(field, 'moyenne :', averages[field]);
+        document.getElementById(`${field}Result`).style.left = `${averages[field]}%`;
+        document.getElementById(`${field}Result`).innerText = `${averages[field]}%`;
+        document.getElementById(`${field}Result`).style.display = `block`;
+    });
 }
 
 function downloadCsv(data) {
@@ -237,7 +288,9 @@ function preload() {
 }
 
 async function setup() {
-    createCanvas(WIDTH, HEIGHT, WEBGL);
+    canvas = createCanvas(WIDTH, HEIGHT, WEBGL);
+    // add canvas to the #canvas-wrapper div
+    canvas.parent('canvas-wrapper');
     waterLayer = createGraphics(WIDTH, HEIGHT, WEBGL);
     waterLayer.colorMode(RGB);
     waterLayer.background(0);
@@ -248,33 +301,44 @@ async function setup() {
 }
 
 async function changeColor() {
+    stepCount++;
+    document.getElementById('step').innerText = `${stepCount}/20`;
+    document.getElementById('voting').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
     document.getElementById('validButton').style.display = 'block';
     document.getElementById('nextButton').style.display = 'none';
+    fields.map(field => {
+        document.getElementById(`${field}Result`).style.display = `none`;
+    });
 
     console.log('changeColor');
-    silentNoisyValue = 0;
-    harshHarmoniousValue = 0;
-    passiveActiveValue = 0;
-    dullBrightValue = 50;
-    sugaryBitterValue = 0;
-    mildAcidValue = 50;
-    coldWarmValue = 0;
-    wetDryValue = 0;
+    visualEffects['silentNoisy'] = 0;
+    visualEffects['harshHarmonious'] = 0;
+    visualEffects['passiveActive'] = 0;
+    visualEffects['dullBright'] = 50;
+    visualEffects['sugaryBitter'] = 0;
+    visualEffects['mildAcid'] = 50;
+    visualEffects['coldWarm'] = 0;
+    visualEffects['wetDry'] = 0;
     updateBlur();
-    document.getElementById('silentNoisy').value = 0;
-    document.getElementById('harshHarmonious').value = 0;
-    document.getElementById('passiveActive').value = 0;
-    document.getElementById('dullBright').value = 50;
-    document.getElementById('sugaryBitter').value = 0;
-    document.getElementById('mildAcid').value = 50;
-    document.getElementById('coldWarm').value = 0;
-    document.getElementById('wetDry').value = 0;
-
+    resetFormData();
+    resetVisualEffects();
 
     tabColor = await fetch_colors();
-    await saveData();
 }
 
+async function vote(){
+    document.getElementById('voting').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    await saveData();
+    await getAverageValuesForPalette();
+    visualEffects = averages;
+    updateBlur();
+
+    document.getElementById('validButton').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'block';
+    
+}
 
 //choisir 4 couleurs
 async function fetch_colors() {
@@ -310,6 +374,11 @@ async function fetch_colors() {
             b: parseInt(color.substring(4, 6), 16)
         };
     });
+    document.getElementById('controlPart').style.cssText = `
+    --palette-1: #${palette.colors[0]}; 
+    --palette-2: #${palette.colors[1]}; 
+    --palette-3: #${palette.colors[2]}; 
+    --palette-4: #${palette.colors[3]}`;
     currentPalette = palette.id;
     return randomColorGrid();
 }
@@ -355,11 +424,11 @@ async function drawMosaic() {
                 posY += vibration();
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
                 waterLayer.rect(posX, posY, width, height);
-                if (coldWarmValue > 50) {
+                if (visualEffects['coldWarm'] > 50) {
                     createDrippingEffect(posX + width / 2, posY + height / 2, randomColor); // Créer des gouttes
                 }
                 // else{
-                //     drawFrostedEdges(posX, posY, width, height, coldWarmValue);
+                //     drawFrostedEdges(posX, posY, width, height, visualEffects['coldWarm']);
                 // }
 
             }
@@ -374,7 +443,7 @@ async function drawMosaic() {
 
             else if (randomColor.index == 3) {
                 waterLayer.fill(randomColor.r, randomColor.g, randomColor.b);
-                drawAcidRectangle(posX, posY, width, height, mildAcidValue);
+                drawAcidRectangle(posX, posY, width, height, visualEffects['mildAcid']);
             }
 
             else if (randomColor.index == 2) {
@@ -408,10 +477,11 @@ function draw() {
     waterLayer.background(0);
     drawMosaic();
     shader(waterShader);
+    const wetDry = Math.max(visualEffects['wetDry'] - 50, 0);
     waterShader.setUniform('u_resolution', [width, height]);
     waterShader.setUniform('u_time', millis() / 1000.0);
     waterShader.setUniform('u_texture', waterLayer);
-    waterShader.setUniform('u_modifier', wetDryValue / 100);
+    waterShader.setUniform('u_modifier', wetDry / 100);
     texture(waterShader);
     beginShape();
     // Chaque sommet (vertex) a des coordonnées (x, y) et (u, v)
@@ -424,66 +494,34 @@ function draw() {
 
 }
 
-function comparer(){
-    const collection = fetchFullCollection();
-    document.getElementById('silentNoisy');
-    document.getElementById('harshHarmonious');
-    document.getElementById('passiveActive');
-    document.getElementById('dullBright');
-    document.getElementById('sugaryBitter');
-    document.getElementById('mildAcid');
-    document.getElementById('coldWarm');
-    document.getElementById('wetDry');
-    collection.then(data => {
-        const paletteData = data.filter(item => item.id === currentPalette);
-        if (paletteData.length > 0) {
-            const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
-            silentNoisyValue = avg(paletteData.map(item => item.silentNoisyValue));
-            harshHarmoniousValue = avg(paletteData.map(item => item.harshHarmoniousValue));
-            passiveActiveValue = avg(paletteData.map(item => item.passiveActiveValue));
-            dullBrightValue = avg(paletteData.map(item => item.dullBrightValue));
-            sugaryBitterValue = avg(paletteData.map(item => item.sugaryBitterValue));
-            mildAcidValue = avg(paletteData.map(item => item.mildAcidValue));
-            coldWarmValue = avg(paletteData.map(item => item.coldWarmValue));
-            wetDryValue = avg(paletteData.map(item => item.wetDryValue));
-
-            console.log(silentNoisyValue, harshHarmoniousValue, passiveActiveValue, dullBrightValue, sugaryBitterValue, mildAcidValue, coldWarmValue, wetDryValue);
-
-            document.getElementById('silentNoisy').value = silentNoisyValue;
-            document.getElementById('harshHarmonious').value = harshHarmoniousValue;
-            document.getElementById('passiveActive').value = passiveActiveValue;
-            document.getElementById('dullBright').value = dullBrightValue;
-            document.getElementById('sugaryBitter').value = sugaryBitterValue;
-            document.getElementById('mildAcid').value = mildAcidValue;
-            document.getElementById('coldWarm').value = coldWarmValue;
-            document.getElementById('wetDry').value = wetDryValue;
-        }
-    });
-
-    document.getElementById('validButton').style.display = 'none';
-    document.getElementById('nextButton').style.display = 'block';
-    
-}
-
 
 /////////////////////
 // EFFETS VISUELS //
 ///////////////////
 
 function vibration() {
-    const vibrationStrength = silentNoisyValue / 97;
+    const silentNoisy = Math.max(visualEffects['silentNoisy'] - 50, 0);
+    const vibrationStrength = silentNoisy / 97;
     return random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
 }
 
+// function pulse(delta) {
+//     const passiveActive = Math.max(visualEffects['passiveActive'] - 50, 0);
+//     return sin(delta * 0.01) * passiveActive; // Variation de l'échelle
+// }
+
 function danse(xPos, yPos, cellWidth, cellHeight) {
+    const passiveActive = Math.max(visualEffects['passiveActive'] - 50, 0);
     waterLayer.translate(xPos + cellWidth / 2, yPos + cellHeight / 2, 0); // Centrer la tuile
-    waterLayer.rotateY(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
-    waterLayer.rotateX(frameCount * passiveActiveValue / 1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    waterLayer.rotateY(frameCount * passiveActive / 1000); // Rotation autour de l'axe Y avec une vitesse différente pour chaque case
+    waterLayer.rotateX(frameCount * passiveActive / 1000); // Rotation autour de l'axe X avec une vitesse différente pour chaque case
+    // waterLayer.scale(1+ Math.sin(passiveActive / 100) * 10); // Échelle différente pour chaque case
     waterLayer.rectMode(CENTER);
 }
 
 function particles(x, y, w, h) {
-    let numParticles = sugaryBitterValue / 20; // Nombre de particules
+    const sugaryBitter = Math.max(visualEffects['sugaryBitter'] - 50, 0)
+    let numParticles = sugaryBitter / 20; // Nombre de particules
     for (let i = 0; i < numParticles; i++) {
         let px = x + random(-w / 2, w / 2) + w / 2; // Position x aléatoire dans le rectangle
         let py = y + random(-h / 2, h / 2) + h / 2; // Position y aléatoire dans le rectangle
@@ -491,7 +529,7 @@ function particles(x, y, w, h) {
 
         waterLayer.fill(255, random(200, 255), random(200, 255), random(100, 200));
         waterLayer.noStroke();
-        waterLayer.ellipse(px, py, size, size); // Dessiner la particule
+        waterLayer.rect(px, py, size, size); // Dessiner la particule
     }
 }
 
@@ -601,5 +639,5 @@ function drawFrostedEdges(x, y, w, h, frostFactor) {
 }
 
 function updateBlur() {
-    document.body.style.cssText = `--blur-amount: ${harshHarmoniousValue / 5}px`;
+    document.body.style.cssText = `--blur-amount: ${visualEffects['harshHarmonious'] / 20}px`;
 }
