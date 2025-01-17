@@ -1,7 +1,3 @@
-function startExperience() {
-    window.location.href = 'loko.html';
-}
-
 const body = document.querySelector('body');
 const btnStart = document.querySelector('.btn-start');
 
