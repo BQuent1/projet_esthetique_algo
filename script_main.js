@@ -6,7 +6,7 @@ const body = document.querySelector('body');
 const btnStart = document.querySelector('.btn-start');
 
 let cursorIsVisible = true; // Suivi de l'état de visibilité du curseur
-const hiddenCursorDistance = 100; // Distance à partir de laquelle le curseur disparaît
+const hiddenCursorDistance = 0; // Distance à partir de laquelle le curseur disparaît
 
 body.addEventListener('mousemove', (e) => {
     // Calcul de la distance entre le curseur et le bouton

@@ -1,152 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palette interactive</title>
-    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
-    <script src="script.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <title>Loko - Découvrez et Notez des Couleurs</title>
+    <link rel="stylesheet" href="style_main.css">
 </head>
-
 <body>
-
-    <div id="canvas-wrapper">
-
+    <div class="container">
+        <h1>Loko</h1>
+        <p>Explorez, jugez et notez des palettes de couleurs uniques.<br>Participez à une expérience interactive où chaque choix compte et faites évoluer les palettes en temps réel.</p>
+        <button class="btn-start" onclick="startExperience()">Démarrer l'expérience</button>
     </div>
 
-    <section>
-        <div id="controlPart">
-            <div class="step">
-                <div id="step">
-                    1/20
-                </div>
-                <div id="voting">
-                    <h1 id="title">
-                        Please vote
-                    </h1>
-                    <p>
-                        Please evaluate the palette by moving the sliders. Your votes will be taken into account in the global evaluation of the palette.
-                    </p>
-                </div>
-                <div id="results" style="display: none;">
-                    <h1 id="title">
-                        Global results
-                    </h1>
-                    <p>
-                        Thank you for your vote! <br/>
-                        Now you can see how this palette is perceived on average.
-                    </p>
-                </div>
-            </div>
-    
-            <div class="slider-container">
-                <label>2x2</label>
-                <div class="slider-wrapper">
-                    <input type="range" id="gridSize" min="2" max="34" step="8">
-                </div>
-                <label>34x34</label>
-            </div>
-            <div class="palette">
-                <div style="background-color: var(--palette-1);"></div>
-                <div style="background-color: var(--palette-2);"></div>
-                <div style="background-color: var(--palette-3);"></div>
-                <div style="background-color: var(--palette-4);"></div>
-            </div>
-            <div id="soundPart">
-                <h2>Sound</h2>
-                <div class="slider-container">
-                    <label>Silent</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="silentNoisy" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="silentNoisyResult" style="left: 70%;">70%</div>
-                    </div>
-                    <label>Noisy</label>
-                </div>
-                <div class="slider-container">
-                    <label>Harsh</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="harshHarmonious" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="harshHarmoniousResult" style="left: 80%;">80%</div>
-                    </div>
-                    <label>Harmonious</label>
-                </div>
-            </div>
-            <div id="climatePart">
-                <h2>Climate</h2>
-                <div class="slider-container">
-                    <label>Passive</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="passiveActive" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="passiveActiveResult" style="left: 30%;">30%</div>
-                    </div>
-                    <label>Active</label>
-                </div>
-                <div class="slider-container">
-                    <label>Dull</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="dullBright" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="dullBrightResult" style="left: 10%;">10%</div>
-                    </div>
-                    <label>Bright</label>
-                </div>
-            </div>
-            <div id="aromaPart">
-                <h2>Aroma</h2>
-                <div class="slider-container">
-                    <label>Bitter</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="sugaryBitter" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="sugaryBitterResult" style="left: 20%;">20%</div>
-                    </div>
-                    <label>Sugary</label>
-                </div>
-                <div class="slider-container">
-                    <label>Mild</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="mildAcid" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="mildAcidResult" style="left: 43%;">43%</div>
-                    </div>
-                    <label>Acid</label>
-                </div>
-            </div>
-            <div id="temperaturePart">
-                <h2>Temperature</h2>
-                <div class="slider-container">
-                    <label>Cold</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="coldWarm" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="coldWarmResult" style="left: 12%;">12%</div>
-                    </div>
-                    <label>Warm</label>
-                </div>
-                <div class="slider-container">
-                    <label>Dry</label>
-                    <div class="slider-wrapper">
-                        <input type="range" id="wetDry" min="0" max="100" value="50" step="10">
-                        <div class="slider-result" id="wetDryResult" style="left: 98%;">98%</div>
-                    </div>
-                    <label>Wet</label>
-                </div>
-            </div>
-    
-            <div id="buttonPart">
-                <button id="validButton">VOTE</button>
-                <button id="nextButton">NEXT</button>
-                <!-- <button class="csvButton" id="csvButton">EXPORT CSV</button> -->
-            </div>
-    
-        </div>
-    </section>
-
+    <script src="script_main.js"></script>
 </body>
-
 </html>

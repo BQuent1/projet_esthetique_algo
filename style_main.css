@@ -5,13 +5,13 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', sans-serif;
     height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle, #ffffff,  #e1dacf);
+    background: radial-gradient(circle, #ffffff, #e1dacf);
     background-size: 400% 400%;
     animation: animateBackground 15s ease-in-out infinite;
     color: white;
@@ -24,9 +24,11 @@ body {
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -37,12 +39,17 @@ body {
     z-index: 10;
 }
 
-h1, p {
-    background: inherit; /* Utilise l'arrière-plan du parent */
-    background-clip: text; /* Clippe l'arrière-plan dans le texte */
-    -webkit-background-clip: text; /* Support pour Webkit */
+h1,
+p {
+    background: inherit;
+    /* Utilise l'arrière-plan du parent */
+    background-clip: text;
+    /* Clippe l'arrière-plan dans le texte */
+    -webkit-background-clip: text;
+    /* Support pour Webkit */
     color: transparent;
-    mix-blend-mode: difference; /* Applique le mode négatif */
+    mix-blend-mode: difference;
+    /* Applique le mode négatif */
 }
 
 h1 {
@@ -75,8 +82,9 @@ p {
     z-index: 10;
 }
 
-.btn-start.selected {
+.btn-start:hover {
     background: #fe8327;
+    color: #fff;
     border: none;
 }
 
@@ -84,11 +92,12 @@ p {
     position: absolute;
     width: 50px;
     height: 50px;
-    background: radial-gradient(circle, rgba(255, 255, 0, 0) 0%, #fe8327 80%);
+    background: radial-gradient(circle, #ff8c00 0%, rgba(255, 0, 0, 0) 90%);
     border-radius: 50%;
     pointer-events: none;
-    mix-blend-mode: screen;
+    mix-blend-mode: normal;
     animation: fadeOut 1s ease forwards;
+
 }
 
 @keyframes fadeOut {
