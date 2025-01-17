@@ -71,6 +71,7 @@ let palettes = [
     { id: 19, colors: ["6e2594", "ecd444", "808080", "000000"] },
     { id: 20, colors: ["561643", "6c0e23", "c42021", "f3ffb9"] }
 ];
+let palettesBackup = palettes;
 
 // shuffle palette
 palettes = palettes.sort(() => Math.random() - 0.5);
@@ -173,7 +174,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('csvButton').addEventListener('click', async () => {
         const data = await fetchFullCollection();
-        downloadCsv(data);
+        // push titles
+        const table = [];
+        table.push("palette,silentNoisy,harshHarmonious,passiveActive,dullBright,sugaryBitter,mildAcid,coldWarm,wetDry,color1,color2,color3,color4".split(','));
+        data.map(doc => {
+            const palette = palettesBackup.find(palette => palette.id == doc.id);
+            if(!palette) return;
+            console.log(palettesBackup);
+            table.push([doc.id, doc.silentNoisy, doc.harshHarmonious, doc.passiveActive, doc.dullBright, doc.sugaryBitter, doc.mildAcid, doc.coldWarm, doc.wetDry, palette.colors[0], palette.colors[1], palette.colors[2], palette.colors[3]]);
+        })
+
+        downloadCsv(table);
     });
 
     // window.addEventListener('keydown', function (event) {
@@ -263,7 +274,7 @@ async function getAverageValuesForPalette() {
 
 function downloadCsv(data) {
     // download csv
-    const csv = data.map(row => Object.values(row).join(',')).join('\n');
+    const csv = data.map(row => row.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -363,7 +374,9 @@ async function fetch_colors() {
     // }
 
     if(palettes.length == 0){
-        console.log("bien ouej t'as tout noté");
+        // console.log("bien ouej t'as tout noté");
+        document.getElementById('controlPart').style.display = 'none';
+        document.getElementById('endPart').style.display = 'block';
         return;
     }
     const palette = palettes.pop();
@@ -501,7 +514,7 @@ function draw() {
 
 function vibration() {
     const silentNoisy = Math.max(visualEffects['silentNoisy'] - 50, 0);
-    const vibrationStrength = silentNoisy / 97;
+    const vibrationStrength = silentNoisy / 95;
     return random(-vibrationStrength, vibrationStrength); // Vibration aléatoire
 }
 
