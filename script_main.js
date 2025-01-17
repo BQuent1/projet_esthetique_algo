@@ -1,5 +1,5 @@
 function startExperience() {
-    window.location.href = 'index.html';
+    window.location.href = 'loko.html';
 }
 
 const body = document.querySelector('body');
