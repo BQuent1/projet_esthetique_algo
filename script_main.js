@@ -1,5 +1,5 @@
 function startExperience() {
-    window.location.href = 'index.html'; // Remplacez par l'URL réelle de votre expérience
+    window.location.href = 'index.html';
 }
 
 const body = document.querySelector('body');

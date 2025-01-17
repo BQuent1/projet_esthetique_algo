@@ -11,7 +11,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle, #77779c, #12121a);
+    background: radial-gradient(circle, #ffffff,  #e1dacf);
     background-size: 400% 400%;
     animation: animateBackground 15s ease-in-out infinite;
     color: white;
@@ -24,11 +24,9 @@ body {
     0% {
         background-position: 0% 50%;
     }
-
     50% {
         background-position: 100% 50%;
     }
-
     100% {
         background-position: 0% 50%;
     }
@@ -39,25 +37,34 @@ body {
     z-index: 10;
 }
 
+h1, p {
+    background: inherit; /* Utilise l'arrière-plan du parent */
+    background-clip: text; /* Clippe l'arrière-plan dans le texte */
+    -webkit-background-clip: text; /* Support pour Webkit */
+    color: transparent;
+    mix-blend-mode: difference; /* Applique le mode négatif */
+}
+
 h1 {
-    font-size: 10rem;
+    font-size: 8rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 3px;
+    color: #000;
 }
 
 p {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: #000;
     margin-bottom: 2rem;
-    line-height: 1.5;
-    color: #cccccc;
 }
 
 .btn-start {
     display: inline-block;
     padding: 0.8rem 2rem;
     font-size: 1.3rem;
-    color: white;
+    color: #000;
     background: transparent;
     border: solid 2px #77779c;
     border-radius: 50px;
@@ -69,15 +76,15 @@ p {
 }
 
 .btn-start.selected {
-    background: rgba(255, 0, 150, 1);
+    background: #fe8327;
     border: none;
 }
 
 .trail {
     position: absolute;
-    width: 15px;
-    height: 15px;
-    background: radial-gradient(circle, rgba(255, 0, 150, 1) 0%, rgba(255, 255, 0, 0) 80%);
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, rgba(255, 255, 0, 0) 0%, #fe8327 80%);
     border-radius: 50%;
     pointer-events: none;
     mix-blend-mode: screen;
@@ -88,7 +95,6 @@ p {
     0% {
         opacity: 1;
     }
-
     100% {
         opacity: 0;
         transform: scale(2);
