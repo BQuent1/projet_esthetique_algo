@@ -29,7 +29,7 @@ const resetVisualEffects = () => {
         mildAcid: 50,
         coldWarm: 50,
         wetDry: 50
-    }
+    };
 }
 
 const resetFormData = () => {
@@ -119,58 +119,33 @@ document.addEventListener('DOMContentLoaded', function () {
     resetVisualEffects();
     resetFormData();
 
-    // controls
-
+    // Gestion de la taille de la grille
     document.getElementById('gridSize').addEventListener('input', function (e) {
         gridSize = parseInt(e.target.value);
         tabColor = randomColorGrid();
     });
 
-
-    document.getElementById('silentNoisy').addEventListener('input', function (e) {
-        // silentNoisyValue = e.target.value;
-        formData['silentNoisy'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('harshHarmonious').addEventListener('input', function (e) {
-        // harshHarmoniousValue = e.target.value;
-        // updateBlur();
-        formData['harshHarmonious'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('passiveActive').addEventListener('change', function (e) {
-        // visualEffects['passiveActive'] = e.target.value;
-        formData['passiveActive'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('dullBright').addEventListener('input', function (e) {
-        // dullBrightValue = e.target.value;
-        formData['dullBright'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('sugaryBitter').addEventListener('input', function (e) {
-        // sugaryBitterValue = e.target.value;
-        formData['sugaryBitter'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('mildAcid').addEventListener('input', function (e) {
-        // mildAcidValue = e.target.value;
-        formData['mildAcid'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('coldWarm').addEventListener('input', function (e) {
-        // coldWarmValue = e.target.value;
-        formData['coldWarm'] = parseInt(e.target.value);
-    });
-
-    document.getElementById('wetDry').addEventListener('change', function (e) {
-        // wetDryValue = e.target.value;
-        formData['wetDry'] = parseInt(e.target.value);
+    // Liste des champs à lier dynamiquement
+    fields.forEach(field => {
+        const slider = document.getElementById(field);
+        if (slider) {
+            slider.addEventListener('input', function (e) {
+                const value = parseInt(e.target.value);
+                // 1. On stocke la valeur pour le formulaire (le vote)
+                formData[field] = value;
+                // 2. On met à jour l'effet visuel immédiatement pour la prévisualisation
+                visualEffects[field] = value;
+                
+                // Cas particulier pour le flou qui dépend de harshHarmonious
+                if (field === 'harshHarmonious') {
+                    updateBlur();
+                }
+            });
+        }
     });
 
     document.getElementById('validButton').addEventListener('click', vote);
     document.getElementById('nextButton').addEventListener('click', changeColor);
-
 
     document.getElementById('csvButton').addEventListener('click', async () => {
         const data = await fetchFullCollection();
@@ -341,14 +316,15 @@ async function changeColor() {
 async function vote(){
     document.getElementById('voting').style.display = 'none';
     document.getElementById('results').style.display = 'block';
+    
     await saveData();
     await getAverageValuesForPalette();
-    visualEffects = averages;
-    updateBlur();
+    
+    visualEffects = averages; 
+    updateBlur(); 
 
     document.getElementById('validButton').style.display = 'none';
     document.getElementById('nextButton').style.display = 'block';
-    
 }
 
 //choisir 4 couleurs

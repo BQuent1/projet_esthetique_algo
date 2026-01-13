@@ -1,11 +1,10 @@
 const body = document.querySelector('body');
 const btnStart = document.querySelector('.btn-start');
 
-let cursorIsVisible = true; // Suivi de l'état de visibilité du curseur
-const hiddenCursorDistance = 0; // Distance à partir de laquelle le curseur disparaît
+let cursorIsVisible = true;
+const hiddenCursorDistance = 0;
 
 body.addEventListener('mousemove', (e) => {
-    // Calcul de la distance entre le curseur et le bouton
     const distanceX = e.clientX - btnStart.getBoundingClientRect().left - btnStart.offsetWidth / 2;
     const distanceY = e.clientY - btnStart.getBoundingClientRect().top - btnStart.offsetHeight / 2;
     const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
@@ -33,10 +32,9 @@ body.addEventListener('mousemove', (e) => {
     }
 });
 
-// Réactiver le curseur lorsque l'on clique sur le bouton
 btnStart.addEventListener('click', () => {
     if (!cursorIsVisible) {
-        document.body.style.cursor = 'auto'; // Affiche à nouveau le curseur
+        document.body.style.cursor = 'auto';
         cursorIsVisible = true;
     }
 });
