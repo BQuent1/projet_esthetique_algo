@@ -19,6 +19,8 @@ let visualEffects = {}
 let averages = {};
 let stepCount = 1;
 
+p5.disableFriendlyErrors = true;
+
 const resetVisualEffects = () => {
     visualEffects = {
         silentNoisy: 50,
